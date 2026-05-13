@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#246b5c" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="チラシまとめ" />
+    <title>チラシまとめ</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icon.svg" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="topbar">
+        <div>
+          <p class="eyebrow">Flyer watch</p>
+          <h1>チラシまとめ</h1>
+        </div>
+        <button class="icon-button" id="resetDemoButton" type="button" title="サンプルを戻す" aria-label="サンプルを戻す">
+          <span aria-hidden="true">↺</span>
+        </button>
+      </section>
+
+      <section class="summary-grid" aria-label="今日の概要">
+        <article>
+          <span id="storeCount">0</span>
+          <p>チラシ</p>
+        </article>
+        <article>
+          <span id="wishCount">0</span>
+          <p>ほしい物</p>
+        </article>
+        <article>
+          <span id="planCount">0</span>
+          <p>購入予定</p>
+        </article>
+      </section>
+
+      <section class="panel wishlist-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Wishlist</p>
+            <h2>今のほしい物リスト</h2>
+          </div>
+        </div>
+        <form id="wishForm" class="form-grid compact-form">
+          <label>
+            品名
+            <input id="wishName" name="wishName" type="text" placeholder="例: 卵" required />
+          </label>
+          <label>
+            希望価格
+            <input id="wishPrice" name="wishPrice" type="number" min="1" step="1" placeholder="例: 198" />
+          </label>
+          <button class="full primary-button" type="submit">ほしい物を追加</button>
+        </form>
+        <div id="wishList" class="wish-check-list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Flyers</p>
+            <h2>よく見るチラシ一覧</h2>
+          </div>
+        </div>
+        <form id="storeForm" class="form-grid">
+          <label>
+            店名
+            <input id="storeName" name="storeName" type="text" placeholder="例: ライフ" required />
+          </label>
+          <label class="full">
+            チラシURL
+            <input id="storeUrl" name="storeUrl" type="url" placeholder="https://..." />
+          </label>
+          <button class="full primary-button" type="submit">チラシを追加</button>
+        </form>
+        <div id="storeList" class="flyer-list"></div>
+      </section>
+
+      <section class="panel calendar-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">2 weeks</p>
+            <h2>2週間の購入予定</h2>
+          </div>
+          <button id="copyPlanButton" type="button">予定をコピー</button>
+        </div>
+        <form id="planForm" class="plan-form">
+          <label>
+            日付
+            <input id="planDate" name="planDate" type="date" required />
+          </label>
+          <label>
+            スーパー
+            <select id="planStore" name="planStore" required></select>
+          </label>
+          <label>
+            商品
+            <input id="planItem" name="planItem" type="text" placeholder="例: 卵" required />
+          </label>
+          <label>
+            価格
+            <input id="planPrice" name="planPrice" type="number" min="1" step="1" placeholder="例: 188" />
+          </label>
+          <label class="full">
+            メモ
+            <input id="planMemo" name="planMemo" type="text" placeholder="例: 13日限り / 1家族1点" />
+          </label>
+          <button class="full primary-button" type="submit">購入予定に追加</button>
+        </form>
+        <form id="bulkPlanForm" class="bulk-form">
+          <label class="full">
+            まとめて追加
+            <textarea id="bulkPlanText" name="bulkPlanText" rows="4" placeholder="同じ日付・スーパーでまとめて追加できます。例:&#10;卵 188&#10;牛乳 178&#10;ブロッコリー 98"></textarea>
+          </label>
+          <button class="secondary-button" type="submit">まとめて予定に追加</button>
+        </form>
+        <div id="calendarList" class="calendar-list"></div>
+      </section>
+
+      <section class="panel backup-panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Backup</p>
+            <h2>データ保管</h2>
+          </div>
+        </div>
+        <div class="backup-actions">
+          <button id="exportDataButton" class="secondary-button" type="button">バックアップを書き出す</button>
+          <label class="import-button">
+            バックアップを読み込む
+            <input id="importDataInput" type="file" accept="application/json,.json" />
+          </label>
+        </div>
+        <p id="backupStatus" class="backup-status">スマホのブラウザ内に保存されます。念のため時々バックアップできます。</p>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

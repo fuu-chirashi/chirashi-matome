@@ -1,0 +1,18 @@
+{
+  "name": "チラシまとめ",
+  "short_name": "チラシ",
+  "description": "よく見るスーパーのチラシ、ほしい物、特売メモをまとめる個人用アプリ",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f7f4ef",
+  "theme_color": "#246b5c",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
