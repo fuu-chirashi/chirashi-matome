@@ -99,9 +99,17 @@ function normalizeImportedState(value) {
   }
 
   return {
-    stores: Array.isArray(imported.stores) ? imported.stores : [],
+    stores: Array.isArray(imported.stores) ? imported.stores.map(normalizeStore) : [],
     wishes: Array.isArray(imported.wishes) ? imported.wishes : [],
     plans: Array.isArray(imported.plans) ? imported.plans : []
+  };
+}
+
+function normalizeStore(store) {
+  return {
+    id: store.id || crypto.randomUUID(),
+    name: store.name || "",
+    url: store.url || ""
   };
 }
 
@@ -156,6 +164,13 @@ function escapeHtml(value) {
 
 function escapeAttribute(value) {
   return escapeHtml(value).replaceAll("`", "&#096;");
+}
+
+function normalizeUrl(value) {
+  const url = String(value || "").trim();
+  if (!url) return "";
+  if (/^https?:\/\//i.test(url)) return url;
+  return `https://${url}`;
 }
 
 function buildBackup() {
@@ -233,11 +248,11 @@ function renderStores() {
     .map(
       (store) => `
         <article class="flyer-card">
-          <div>
+          <div class="flyer-main">
             <p class="card-title">${escapeHtml(store.name)}</p>
           </div>
           <div class="card-actions">
-            ${store.url ? `<a class="link-button" href="${escapeAttribute(store.url)}">チラシを開く</a>` : ""}
+            ${store.url ? `<button class="link-button" type="button" data-action="open-store" data-url="${escapeAttribute(store.url)}">チラシを開く</button>` : ""}
             <button class="delete-button" type="button" data-action="delete-store" data-id="${store.id}" aria-label="${escapeAttribute(store.name)}を削除">×</button>
           </div>
         </article>
@@ -253,44 +268,51 @@ function renderStoreOptions() {
 
 function renderCalendar() {
   const start = new Date(`${todayKey()}T00:00:00`);
-  const days = Array.from({ length: 14 }, (_, index) => dateKey(addDays(start, index)));
+  const days = Array.from({ length: 7 }, (_, index) => dateKey(addDays(start, index)));
 
   elements.calendarList.innerHTML = days
     .map((key) => {
       const plans = state.plans.filter((plan) => plan.date === key);
       const grouped = groupPlansByStore(plans);
+      const storeNames = grouped.map(([storeId]) => getStore(storeId).name).join(" / ");
       return `
-        <article class="day-card">
-          <div class="day-heading">
-            <strong>${formatDateLabel(key)}</strong>
-            ${key === todayKey() ? '<span class="today-pill">今日</span>' : ""}
+        <details class="day-card" ${key === todayKey() ? "open" : ""}>
+          <summary class="day-summary">
+            <span class="day-date">
+              <strong>${formatDateLabel(key)}</strong>
+              ${key === todayKey() ? '<span class="today-pill">今日</span>' : ""}
+            </span>
+            <span class="day-store">${storeNames ? escapeHtml(storeNames) : "予定なし"}</span>
+            <span class="day-count">${plans.length}件</span>
+          </summary>
+          <div class="day-detail">
+            ${
+              grouped.length === 0
+                ? '<p class="day-empty">購入予定なし</p>'
+                : grouped
+                    .map(
+                      ([storeId, storePlans]) => `
+                        <section class="store-plan">
+                          <h3>${escapeHtml(getStore(storeId).name)}</h3>
+                          <ul>
+                            ${storePlans
+                              .map(
+                                (plan) => `
+                                  <li>
+                                    <span>${escapeHtml(plan.name)}${plan.price ? ` <b>${yen(plan.price)}</b>` : ""}${plan.memo ? ` <small>${escapeHtml(plan.memo)}</small>` : ""}</span>
+                                    <button class="mini-delete" type="button" data-action="delete-plan" data-id="${plan.id}" aria-label="${escapeAttribute(plan.name)}を削除">×</button>
+                                  </li>
+                                `
+                              )
+                              .join("")}
+                          </ul>
+                        </section>
+                      `
+                    )
+                    .join("")
+            }
           </div>
-          ${
-            grouped.length === 0
-              ? '<p class="day-empty">購入予定なし</p>'
-              : grouped
-                  .map(
-                    ([storeId, storePlans]) => `
-                      <section class="store-plan">
-                        <h3>${escapeHtml(getStore(storeId).name)}</h3>
-                        <ul>
-                          ${storePlans
-                            .map(
-                              (plan) => `
-                                <li>
-                                  <span>${escapeHtml(plan.name)}${plan.price ? ` <b>${yen(plan.price)}</b>` : ""}${plan.memo ? ` <small>${escapeHtml(plan.memo)}</small>` : ""}</span>
-                                  <button class="mini-delete" type="button" data-action="delete-plan" data-id="${plan.id}" aria-label="${escapeAttribute(plan.name)}を削除">×</button>
-                                </li>
-                              `
-                            )
-                            .join("")}
-                        </ul>
-                      </section>
-                    `
-                  )
-                  .join("")
-          }
-        </article>
+        </details>
       `;
     })
     .join("");
@@ -306,7 +328,7 @@ function groupPlansByStore(plans) {
 }
 
 function copyPlanText() {
-  const days = Array.from({ length: 14 }, (_, index) => dateKey(addDays(new Date(`${todayKey()}T00:00:00`), index)));
+  const days = Array.from({ length: 7 }, (_, index) => dateKey(addDays(new Date(`${todayKey()}T00:00:00`), index)));
   const lines = days.flatMap((key) => {
     const plans = state.plans.filter((plan) => plan.date === key);
     if (plans.length === 0) return [];
@@ -315,7 +337,7 @@ function copyPlanText() {
       ...plans.map((plan) => `- ${getStore(plan.storeId).name}: ${plan.name}${plan.price ? ` ${yen(plan.price)}` : ""}${plan.memo ? ` (${plan.memo})` : ""}`)
     ];
   });
-  return lines.length ? lines.join("\n") : "2週間の購入予定はまだありません。";
+  return lines.length ? lines.join("\n") : "1週間の購入予定はまだありません。";
 }
 
 elements.storeForm.addEventListener("submit", (event) => {
@@ -324,7 +346,7 @@ elements.storeForm.addEventListener("submit", (event) => {
   state.stores.push({
     id: crypto.randomUUID(),
     name: formData.get("storeName").trim(),
-    url: formData.get("storeUrl").trim()
+    url: normalizeUrl(formData.get("storeUrl"))
   });
   clearForm(event.currentTarget);
   render();
@@ -397,7 +419,11 @@ document.addEventListener("click", (event) => {
   const button = event.target.closest("[data-action]");
   if (!button) return;
 
-  const { action, id } = button.dataset;
+  const { action, id, url } = button.dataset;
+  if (action === "open-store") {
+    window.location.assign(normalizeUrl(url));
+    return;
+  }
   if (action === "delete-store") {
     state.stores = state.stores.filter((store) => store.id !== id);
     state.plans = state.plans.filter((plan) => plan.storeId !== id);
