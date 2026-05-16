@@ -257,19 +257,22 @@ textarea:focus {
 .wish-check-card {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   color: var(--ink);
+  padding: 8px 10px;
 }
 
 .wish-check-card input {
-  width: 22px;
-  min-height: 22px;
+  width: 18px;
+  min-height: 18px;
   accent-color: var(--accent);
 }
 
 .wish-check-card span {
-  display: grid;
-  gap: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 8px;
+  align-items: baseline;
 }
 
 .wish-check-card small {
@@ -284,9 +287,17 @@ textarea:focus {
   align-items: center;
 }
 
+.flyer-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
 .card-title {
   margin: 0;
   font-weight: 850;
+  min-width: 0;
 }
 
 .card-meta,
@@ -318,6 +329,8 @@ textarea:focus {
 }
 
 .link-button {
+  border: 0;
+  background: transparent;
   color: var(--blue);
   font-weight: 800;
   text-decoration: none;
@@ -339,42 +352,76 @@ textarea:focus {
 }
 
 .calendar-list {
-  grid-template-columns: repeat(7, minmax(132px, 1fr));
-  gap: 0;
-  overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #ffffff;
+  gap: 8px;
 }
 
 .day-card {
-  display: grid;
-  gap: 10px;
-  align-content: start;
-  min-height: 178px;
-  border: 0;
-  border-right: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  border-radius: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
   box-shadow: none;
-  padding: 10px;
+  padding: 0;
+  overflow: hidden;
 }
 
-.day-card:nth-child(7n) {
-  border-right: 0;
-}
-
-.day-card:nth-child(n + 8) {
-  border-bottom: 0;
-}
-
-.day-heading {
+.day-summary {
   display: grid;
+  grid-template-columns: minmax(78px, auto) minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 10px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.day-summary::-webkit-details-marker {
+  display: none;
+}
+
+.day-summary::after {
+  content: "＋";
+  color: var(--accent-strong);
+  font-weight: 900;
+}
+
+.day-card[open] .day-summary::after {
+  content: "－";
+}
+
+.day-date {
+  display: flex;
+  align-items: center;
   gap: 5px;
 }
 
-.day-heading strong {
+.day-date strong {
   font-size: 0.95rem;
+}
+
+.day-store {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--accent-strong);
+  font-size: 0.85rem;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.day-count {
+  border-radius: 999px;
+  background: #f3eee5;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 850;
+  padding: 3px 7px;
+}
+
+.day-detail {
+  display: grid;
+  gap: 8px;
+  border-top: 1px solid var(--line);
+  padding: 9px 10px 10px;
 }
 
 .day-empty {
@@ -503,27 +550,19 @@ textarea:focus {
     grid-template-columns: 1fr;
   }
 
+  .flyer-main {
+    align-items: flex-start;
+    justify-content: space-between;
+  }
+
   .calendar-list {
-    grid-template-columns: repeat(14, 154px);
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x proximity;
-    -webkit-overflow-scrolling: touch;
+    grid-template-columns: 1fr;
   }
 
-  .day-card {
-    min-height: 190px;
-    border-right: 1px solid var(--line);
-    border-bottom: 0;
-    scroll-snap-align: start;
-  }
-
-  .day-card:nth-child(7n) {
-    border-right: 1px solid var(--line);
-  }
-
-  .day-card:last-child {
-    border-right: 0;
+  .day-summary {
+    grid-template-columns: minmax(78px, auto) minmax(0, 1fr) auto auto;
+    min-height: 42px;
+    padding: 7px 9px;
   }
 
   .section-heading button,
